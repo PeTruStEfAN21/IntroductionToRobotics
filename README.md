@@ -13,9 +13,6 @@ Acest repository conține simulările realizate în **Falstad Circuit Simulator*
 - **Rezistoare în serie:** $R_1 = 100\,\Omega$, $R_2 = 200\,\Omega$
 - **LED în serie:** $V_{LED} = 2.0\,\text{V}$
 
-![Series Circuit](./series.png)
-
-### Calcule Explicite
 
 1. **Rezistența echivalentă ($R_{eq}$):**
    $$R_{eq} = R_1 + R_2 = 100\,\Omega + 200\,\Omega = 300\,\Omega$$
@@ -47,9 +44,6 @@ Acest repository conține simulările realizate în **Falstad Circuit Simulator*
 - **Ramura 1:** Rezistor $R_1 = 470\,\Omega$ în serie cu $\text{LED}_1$ ($V_{LED1} = 2.0\,\text{V}$)
 - **Ramura 2:** Rezistor $R_2 = 1000\,\Omega$ ($1\,\text{k}\Omega$) în serie cu $\text{LED}_2$ ($V_{LED2} = 2.0\,\text{V}$)
 
-![Parallel Circuit](./parallel.png)
-
-### Calcule Explicite
 
 1. **Căderile de tensiune și curenții pe fiecare ramură ($I_1, I_2$):**
    Deoarece ramurile sunt conectate în paralel direct la sursa de $9\,\text{V}$:
@@ -84,8 +78,7 @@ Acest repository conține simulările realizate în **Falstad Circuit Simulator*
 - **Rezistor de descărcare / limitare curent LED:** $R_{LED} = 1000\,\Omega$ ($1\,\text{k}\Omega$)
 - **Condensatoare utilizate:** $C_1 = 1000\,\mu\text{F} = 1\,\text{mF}$ și $C_2 = 1000\,\mu\text{F} = 1\,\text{mF}$
 
-![RC Parallel Circuit](./rc_parallel.png)
-![RC Series Circuit](./rc_series.png)
+
 
 ### A. Capacitatea Echivalentă ($C_{eq}$) și Constanta de Timp ($\tau$)
 
