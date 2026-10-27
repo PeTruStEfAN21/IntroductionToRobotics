@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="Consolas, monospace" font-size="14">
+  <rect width="900" height="560" fill="#ffffff"/>
+  <text x="450" y="30" text-anchor="middle" font-size="20" font-weight="bold">Homework 3 - Fan Control and Status Panel (ESP32)</text>
+
+  <!-- ESP32 -->
+  <rect x="60" y="70" width="200" height="420" rx="8" fill="#e8eef7" stroke="#223" stroke-width="2"/>
+  <text x="160" y="100" text-anchor="middle" font-size="18" font-weight="bold">ESP32 DevKit</text>
+  <text x="160" y="120" text-anchor="middle" fill="#555">GPIO2 = Built-in LED</text>
+  <g font-weight="bold">
+    <text x="250" y="165" text-anchor="end">3V3</text>
+    <text x="250" y="215" text-anchor="end">GPIO34</text>
+    <text x="250" y="275" text-anchor="end">GPIO18</text>
+    <text x="250" y="325" text-anchor="end">GPIO25</text>
+    <text x="250" y="355" text-anchor="end">GPIO26</text>
+    <text x="250" y="385" text-anchor="end">GPIO27</text>
+    <text x="250" y="435" text-anchor="end">GPIO23</text>
+    <text x="250" y="475" text-anchor="end">GND</text>
+  </g>
+
+  <!-- GND rail -->
+  <line x1="260" y1="470" x2="840" y2="470" stroke="#000" stroke-width="2"/>
+  <line x1="840" y1="160" x2="840" y2="470" stroke="#000" stroke-width="2"/>
+  <text x="845" y="490" text-anchor="end">GND rail</text>
+
+  <!-- Potentiometer -->
+  <line x1="260" y1="160" x2="520" y2="160" stroke="#c00" stroke-width="2"/>
+  <rect x="520" y="148" width="120" height="24" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="580" y="140" text-anchor="middle">Potentiometer 10k</text>
+  <line x1="640" y1="160" x2="840" y2="160" stroke="#000" stroke-width="2"/>
+  <line x1="580" y1="172" x2="580" y2="210" stroke="#06c" stroke-width="2"/>
+  <polygon points="574,180 586,180 580,172" fill="#06c"/>
+  <line x1="260" y1="210" x2="580" y2="210" stroke="#06c" stroke-width="2"/>
+  <text x="420" y="203" text-anchor="middle" fill="#06c">wiper (3.3V max!)</text>
+
+  <!-- External LED -->
+  <line x1="260" y1="270" x2="400" y2="270" stroke="#000" stroke-width="2"/>
+  <rect x="400" y="260" width="70" height="20" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="435" y="254" text-anchor="middle">220Ω</text>
+  <line x1="470" y1="270" x2="560" y2="270" stroke="#000" stroke-width="2"/>
+  <polygon points="560,258 560,282 584,270" fill="#fc0" stroke="#000" stroke-width="2"/>
+  <line x1="584" y1="258" x2="584" y2="282" stroke="#000" stroke-width="2"/>
+  <text x="572" y="300" text-anchor="middle">Fan LED (PWM)</text>
+  <line x1="584" y1="270" x2="840" y2="270" stroke="#000" stroke-width="2"/>
+
+  <!-- RGB LED (common cathode) -->
+  <g stroke="#000" stroke-width="2">
+    <line x1="260" y1="320" x2="400" y2="320" stroke="#d00"/>
+    <line x1="260" y1="350" x2="400" y2="350" stroke="#090"/>
+    <line x1="260" y1="380" x2="400" y2="380" stroke="#00c"/>
+    <rect x="400" y="312" width="70" height="16" fill="#fff"/>
+    <rect x="400" y="342" width="70" height="16" fill="#fff"/>
+    <rect x="400" y="372" width="70" height="16" fill="#fff"/>
+    <line x1="470" y1="320" x2="560" y2="320" stroke="#d00"/>
+    <line x1="470" y1="350" x2="560" y2="350" stroke="#090"/>
+    <line x1="470" y1="380" x2="560" y2="380" stroke="#00c"/>
+    <rect x="560" y="305" width="80" height="90" rx="10" fill="#f4f4f4"/>
+    <line x1="640" y1="350" x2="840" y2="350"/>
+  </g>
+  <text x="435" y="408" text-anchor="middle">3 x 220Ω</text>
+  <text x="600" y="345" text-anchor="middle" font-weight="bold">RGB</text>
+  <text x="600" y="362" text-anchor="middle" font-size="12">common</text>
+  <text x="600" y="376" text-anchor="middle" font-size="12">cathode</text>
+  <text x="740" y="343" text-anchor="middle" font-size="12">cathode (-)</text>
+
+  <!-- Buzzer -->
+  <line x1="260" y1="430" x2="400" y2="430" stroke="#000" stroke-width="2"/>
+  <rect x="400" y="420" width="70" height="20" fill="#fff" stroke="#000" stroke-width="2"/>
+  <text x="435" y="414" text-anchor="middle">100Ω</text>
+  <line x1="470" y1="430" x2="560" y2="430" stroke="#000" stroke-width="2"/>
+  <circle cx="590" cy="430" r="26" fill="#333"/>
+  <text x="590" y="435" text-anchor="middle" fill="#fff" font-size="11">BUZZ</text>
+  <text x="590" y="400" text-anchor="middle" font-size="12">passive buzzer</text>
+  <line x1="616" y1="430" x2="660" y2="430" stroke="#000" stroke-width="2"/>
+  <line x1="660" y1="430" x2="660" y2="470" stroke="#000" stroke-width="2"/>
+
+  <text x="450" y="535" text-anchor="middle" fill="#555" font-size="12">Common-cathode RGB: a color lights up when its GPIO is HIGH (RGB_COMMON_ANODE = false).</text>
+</svg>
