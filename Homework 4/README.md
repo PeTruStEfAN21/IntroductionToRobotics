@@ -23,6 +23,14 @@ The button needs no external resistor. GPIO21 idles `HIGH` through the internal 
 - **Left - lamp (GPIO18):** a 3.3 V source stands in for the GPIO18 output. A toggle switch acts as GPIO18 `HIGH`/`LOW` and feeds the 220Ω resistor and the LED to GND. Closed switch = `FULL`, open = `OFF`. PWM (`DIM`, `BLINK`) is the same switch toggled very fast.
 - **Right - button (GPIO21):** a 3.3 V source and a 45 kΩ resistor model the ESP32 internal pull-up (about 45 kΩ typical). The node between the resistor and the push button is GPIO21. Hover over it: about 3.3 V (`HIGH`) at rest and 0 V (`LOW`) while the button is held. That HIGH-to-LOW transition is the falling edge that triggers the interrupt.
 
+Simulated values: the LED branch draws **7.0 mA** (1.55 V on the 220Ω resistor, 1.75 V on the LED). While the button is held, only **73 µA** flows through the pull-up (3.3 V / 45 kΩ).
+
+| Button released - GPIO21 = 3.3 V (`HIGH`) | Button pressed - GPIO21 = 0 V (`LOW`) |
+|---|---|
+| ![Falstad - button released](images/falstad-rest.png) | ![Falstad - button pressed](images/falstad-pressed.png) |
+
+Green = 3.3 V, gray = 0 V, yellow dots = current flow.
+
 ### Wiring steps
 
 1. Place the ESP32 across the breadboard's center channel and connect a **GND** pin to the breadboard's GND rail.
