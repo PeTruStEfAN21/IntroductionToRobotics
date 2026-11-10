@@ -110,10 +110,20 @@ const uint32_t DIGIT_PERIOD_US = 2000;  // 4 cifre x 2 ms = 125 Hz
 const uint32_t JOYSTICK_INTERVAL_MS = 10;
 const uint32_t DEBOUNCE_MS = 30;
 
-const int JOY_PRESS_THRESHOLD = 1200;   // peste: directie activa
-const int JOY_RELEASE_THRESHOLD = 600;  // sub: inapoi in centru (histerezis)
-const bool JOY_INVERT_X = false;        // schimba daca stanga/dreapta sunt pe dos
-const bool JOY_INVERT_Y = false;        // schimba daca sus/jos sunt pe dos
+// Masurat pe modulul meu: repaus ~2000, capatul de sus 4095, capatul de jos
+// doar ~500-700, deci pragul trebuie sa fie sub 1200
+const int JOY_PRESS_THRESHOLD = 900;    // peste: directie activa
+const int JOY_RELEASE_THRESHOLD = 450;  // sub: inapoi in centru (histerezis)
+
+// Orientarea modulului pe breadboard: VRx e pe verticala (sus = valoare mare),
+// VRy pe orizontala (stanga = valoare mare)
+const bool JOY_SWAP_AXES = true;
+const bool JOY_INVERT_X = true;
+const bool JOY_INVERT_Y = true;
+
+// Centrul masurat la pornire e acceptat doar daca e aproape de mijlocul scalei
+const int JOY_CENTER_DEFAULT = 2000;
+const int JOY_CENTER_TOLERANCE = 500;
 
 // ---------------- Stare joc ----------------
 enum GameState {
@@ -372,6 +382,11 @@ Direction readJoystick(uint32_t now) {
 
   int dx = analogRead(joystickXPin) - joyCenterX;
   int dy = analogRead(joystickYPin) - joyCenterY;
+  if (JOY_SWAP_AXES) {
+    int swap = dx;
+    dx = dy;
+    dy = swap;
+  }
   if (JOY_INVERT_X) dx = -dx;
   if (JOY_INVERT_Y) dy = -dy;
   int absX = abs(dx);
@@ -540,6 +555,10 @@ void setup() {
   }
   joyCenterX = sumX / samples;
   joyCenterY = sumY / samples;
+  // Daca joystick-ul era tinut inclinat la pornire, masuratoarea e gresita:
+  // folosim centrul nominal
+  if (abs(joyCenterX - JOY_CENTER_DEFAULT) > JOY_CENTER_TOLERANCE) joyCenterX = JOY_CENTER_DEFAULT;
+  if (abs(joyCenterY - JOY_CENTER_DEFAULT) > JOY_CENTER_TOLERANCE) joyCenterY = JOY_CENTER_DEFAULT;
 
   randomSeed(esp_random());
 
