@@ -114,6 +114,7 @@ const uint32_t DEBOUNCE_MS = 30;
 // doar ~500-700, deci pragul trebuie sa fie sub 1200
 const int JOY_PRESS_THRESHOLD = 900;    // peste: directie activa
 const int JOY_RELEASE_THRESHOLD = 450;  // sub: inapoi in centru (histerezis)
+const uint8_t JOY_STABLE_READS = 3;     // 3 citiri x 10 ms = 30 ms de directie stabila
 
 // Orientarea modulului pe breadboard: VRx e pe verticala (sus = valoare mare),
 // VRy pe orizontala (stanga = valoare mare)
@@ -367,8 +368,12 @@ void handleHackInput(Direction dir, bool pressed, uint32_t now) {
 // ---------------- Intrari ----------------
 int joyCenterX = 2000;
 int joyCenterY = 2000;
-Direction joyDirection = DIR_NONE;
+Direction joyDirection = DIR_NONE;   // directia deja raportata (pana revine in centru)
+Direction joyCandidate = DIR_NONE;   // directia vazuta, inca neconfirmata
+uint8_t joyCandidateReads = 0;
+bool joyGlitchReported = false;
 uint32_t lastJoystickReadMs = 0;
+const char *directionNames[] = {"-", "SUS", "JOS", "STANGA", "DREAPTA"};
 
 bool buttonReading = false;
 bool buttonStable = false;
@@ -380,8 +385,10 @@ Direction readJoystick(uint32_t now) {
   if (now - lastJoystickReadMs < JOYSTICK_INTERVAL_MS) return DIR_NONE;
   lastJoystickReadMs = now;
 
-  int dx = analogRead(joystickXPin) - joyCenterX;
-  int dy = analogRead(joystickYPin) - joyCenterY;
+  int rawX = analogRead(joystickXPin);
+  int rawY = analogRead(joystickYPin);
+  int dx = rawX - joyCenterX;
+  int dy = rawY - joyCenterY;
   if (JOY_SWAP_AXES) {
     int swap = dx;
     dx = dy;
@@ -399,13 +406,36 @@ Direction readJoystick(uint32_t now) {
     return DIR_NONE;
   }
 
-  if (absX < JOY_PRESS_THRESHOLD && absY < JOY_PRESS_THRESHOLD) return DIR_NONE;
-
-  if (absX > absY) {
-    joyDirection = dx < 0 ? DIR_LEFT : DIR_RIGHT;
+  Direction seen = DIR_NONE;
+  if (absX >= JOY_PRESS_THRESHOLD || absY >= JOY_PRESS_THRESHOLD) {
+    int larger = max(absX, absY);
+    int smaller = min(absX, absY);
+    if (smaller * 2 > larger) {
+      // Ambele axe sar impreuna: e un contact slab pe alimentarea
+      // joystick-ului (sau o diagonala), nu o directie clara. O ignoram.
+      if (!joyGlitchReported) {
+        joyGlitchReported = true;
+        Serial.printf("[JOY] ignorat, ambele axe deviate (x=%d y=%d)\n", rawX, rawY);
+      }
+    } else if (absX > absY) {
+      seen = dx < 0 ? DIR_LEFT : DIR_RIGHT;
+    } else {
+      seen = dy < 0 ? DIR_UP : DIR_DOWN;
+    }
   } else {
-    joyDirection = dy < 0 ? DIR_UP : DIR_DOWN;
+    joyGlitchReported = false;
   }
+
+  // Directia trebuie sa ramana aceeasi cateva citiri la rand (filtru de zgomot)
+  if (seen != joyCandidate) {
+    joyCandidate = seen;
+    joyCandidateReads = 0;
+  }
+  if (seen == DIR_NONE) return DIR_NONE;
+  if (++joyCandidateReads < JOY_STABLE_READS) return DIR_NONE;
+
+  joyDirection = seen;
+  Serial.printf("[JOY] %s (x=%d y=%d)\n", directionNames[seen], rawX, rawY);
   return joyDirection;
 }
 

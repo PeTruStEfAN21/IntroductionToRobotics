@@ -108,6 +108,8 @@ There is no `delay()` and no waiting loop anywhere. `loop()` runs three steps co
 Input handling:
 
 - **Dead zone and edge detection** - a direction is reported once, when the stick moves more than 900 ADC units away from the center. The next direction is accepted only after the stick returns within 450 units of the center (hysteresis). Holding the stick does not repeat the action. The thresholds come from measurements on my module: it rests around 2000, reaches 4095 at one end but only about 500-700 at the other.
+- **Noise filtering** - a direction has to stay the same for 3 consecutive readings (30 ms) before it is accepted. If both axes are deflected at the same time (the smaller deflection is more than half of the larger one), the reading is ignored: that is a loose power or ground contact on the joystick, or an unclear diagonal, not a command.
+- **Serial debugging** - every accepted direction is printed with the raw ADC values, for example `[JOY] SUS (x=4095 y=1990)`, and ignored readings are printed as `[JOY] ignorat`.
 - **Center calibration** - the center is measured at startup, because it differs between joystick modules. If the measured value is far from mid-scale (the stick was held tilted during power-up), the nominal center of 2000 is used instead.
 - **Orientation** - the module sits on the breadboard rotated, so VRx is the vertical axis. `JOY_SWAP_AXES`, `JOY_INVERT_X` and `JOY_INVERT_Y` in `main.cpp` map the raw axes to up / down / left / right.
 - **Button debouncing** - a press is accepted after the level stays stable for 30 ms. The stop value is computed for the moment of the first contact, not for the moment the debounce ends, so debouncing does not add 30 ms to the score.
