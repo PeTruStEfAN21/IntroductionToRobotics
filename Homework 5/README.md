@@ -33,7 +33,86 @@ Breadboard layout from Laboratory 4 (Figure 6.2):
 
 ### Assembled circuit
 
-![Assembled circuit](images/circuit.jpg)
+![Assembled circuit - top view](images/circuit-1.jpeg)
+
+| | |
+|---|---|
+| ![Assembled circuit - shift register and display](images/circuit-2.jpeg) | ![Assembled circuit - joystick side](images/circuit-3.jpeg) |
+
+### Falstad simulation
+
+[`falstad_circuit.txt`](falstad_circuit.txt) - import it in [Falstad Circuit Simulator](https://www.falstad.com/circuit/) with *File -> Import From Text*. Falstad has no ESP32 and no 74HC595 with a latch, so the digital parts are modeled with equivalent components:
+
+- **Left - one digit of the display.** A 3.3 V source stands in for the 74HC595 supply. Each output `Q7..Q0` is a switch: closed = output `HIGH`. Every output feeds its own 1 kΩ resistor and one LED (one segment). All LED cathodes are joined in the common cathode of the digit, which reaches GND through one more switch. That switch is the digit select pin (GPIO25): closed = `LOW` = digit on.
+- **Right - the joystick.** Two 10 kΩ potentiometers between 3.3 V and GND are the two axes, with the sliders going to GPIO34 and GPIO35. Drag the `VRx` / `VRy` sliders in the right panel to move the stick. The button is a switch to GND with a 45 kΩ resistor to 3.3 V, which models the internal pull-up of GPIO32.
+
+| Digit `7`: A, B, C on, joystick at rest, button released | All segments on (`8.`), joystick pushed on X, button pressed |
+|---|---|
+| ![Falstad - digit 7](images/falstad-digit-7.png) | ![Falstad - all segments](images/falstad-all-segments.png) |
+
+Green = 3.3 V, gray = 0 V, yellow dots = current flow.
+
+Simulated values:
+
+| Quantity | Value |
+|---|---|
+| Current through one lit segment | 1.69 mA (1.69 V on the resistor, 1.61 V on the LED) |
+| Digit pin current, digit `7` (3 segments) | 5.06 mA |
+| Digit pin current, all 8 segments | 13.5 mA |
+| Joystick axis at rest | 1.65 V |
+| Joystick axis, slider at 20% | 2.63 V |
+| Current through each potentiometer | 0.33 mA |
+| GPIO32, button released / pressed | 3.3 V / 0 V |
+| Pull-up current while the button is pressed | 73 µA |
+
+## Calculations
+
+**Segment current.** A segment is an LED in series with a 1 kΩ resistor, driven from 3.3 V:
+
+```
+I = (3.3 V - V_LED) / R = (3.3 - 1.61) / 1000 = 1.69 mA
+```
+
+**Digit pin current.** All lit segments of a digit return through its common cathode, so through one GPIO:
+
+```
+digit "7"  (3 segments): 3 x 1.69 mA = 5.06 mA
+digit "8." (8 segments): 8 x 1.69 mA = 13.5 mA
+```
+
+Only one digit is on at a time, so 13.5 mA is also the most that the 74HC595 supplies in total. Both values are well inside the limits of the parts (28 mA sink for an ESP32 pin, 70 mA total for the 74HC595).
+
+**Why 1 kΩ and not 220 Ω.** With 220 Ω a segment would take about (3.3 - 1.61) / 220 = 7.7 mA, and a digit with all segments on about 61 mA through a single GPIO, more than twice the limit.
+
+**Multiplexing.** Each digit is on for 2 ms out of every 8 ms:
+
+```
+refresh rate          = 1 / (4 x 2 ms) = 125 Hz
+duty cycle per digit  = 2 ms / 8 ms    = 25 %
+average segment current = 1.69 mA x 0.25 = 0.42 mA
+shift register traffic  = 500 digits/s x 8 bits = 4000 bits/s
+```
+
+125 Hz is above the rate at which the eye sees flicker, so the four digits look lit at the same time.
+
+**Joystick and ADC.** At rest the slider sits in the middle of the potentiometer:
+
+```
+V   = 3.3 V x 5 kΩ / 10 kΩ = 1.65 V
+ADC = 1.65 / 3.3 x 4095    = 2048   (measured on the real module: about 2000)
+```
+
+The direction threshold of 900 ADC units is 900 / 4095 x 3.3 V = 0.73 V away from the center, and the release threshold of 450 units is 0.36 V.
+
+**Button.** Released, GPIO32 is held at 3.3 V by the pull-up. Pressed, it is at 0 V and the pull-up carries 3.3 V / 45 kΩ = 73 µA.
+
+**Countdown timing.** The value drops by `speed` units every 10 ms, so the time to reach the target is:
+
+```
+t = (start - target) x 10 ms / speed
+```
+
+The start value is chosen as `target + travelMs x speed / 10` with `travelMs` between 4000 and 8000, so the target is reached after 4 to 8 seconds on every level. Example on level 1: target 7.12, start 12.85, so 573 units x 10 ms = 5.73 s.
 
 ## Controls
 
